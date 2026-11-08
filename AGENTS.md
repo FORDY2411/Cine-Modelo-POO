@@ -1,99 +1,99 @@
-# AGENTS.md - Proyecto Cine (JavaFX + Maven)
+# AGENTS.md - Proyecto Cine (JavaFX + Maven + MySQL)
 
-Este archivo guía a cualquier IA que trabaje en este repositorio.
+Este archivo guía a cualquier IA (Antigravity, Cursor, Copilot, ChatGPT, Claude) que trabaje en este repositorio.
+Cualquier asistente de IA DEBE leer y obedecer estrictamente estas reglas antes de proponer o aplicar cambios.
+
+---
 
 ## 1. Qué es este proyecto
-Aplicación de escritorio de gestión de taquillas de cine.
+Aplicación de escritorio para la gestión integral de un complejo de cine y taquillas.
 - Lenguaje: Java 11
-- UI: JavaFX (FXML)
-- Build: Maven (pom.xml en la raíz)
+- UI: JavaFX 13 (FXML)
+- Base de datos: MySQL / MariaDB (`cine_db` en localhost:3306) con JDBC
+- Build: Maven (`pom.xml` en la raíz)
 - Punto de entrada: `com.mycompany.cine.App` (extiende `javafx.application.Application`)
-- Vista principal: `src/main/resources/com/mycompany/cine/cines.fxml` (cargada por `App.start`)
+- Flujo inicial: Inicia en `login.fxml` (1120x720). Al pulsar "Entrar", abre la **Taquilla Principal** (`cines.fxml`).
 
-## 2. Estructura de paquetes
+---
+
+## 2. Estructura de Paquetes y Vistas
 ```
 src/main/java/com/mycompany/cine/
-  App.java
-  module-info.java
-  PrimaryController.java
-  SecondaryController.java
+  App.java                              -> Punto de entrada JavaFX
+  module-info.java                      -> Configuración modular (requires java.sql, javafx, etc.)
   controladores/
-    CinesController.java          -> controlador de cines.fxml (implements Initializable)
+    LoginController.java                -> Controlador de login.fxml
+    CinesController.java                -> Controlador de cines.fxml (Taquilla, Cartelera, Salas, Funciones, Personal)
+    AdministradoresController.java      -> Controlador de administradores.fxml (Actividad 3.2 - memoria)
+    AdministradorController.java        -> Controlador de administrador.fxml (Actividad 3.8/3.9 - DAO MySQL)
   modelo/
-    Persona.java                  -> abstracta, base de todos los usuarios
-    Administrador.java            -> personal (bitacora, nivelAcceso, estadoTurno)
-    Gerente.java                  -> taquilla (idCaja, montoApertura, estadoGerente)
-    Supervisor.java               -> (codigoAutorizacion, limiteDescuento, estadoSupervisor)
-    Pelicula.java, Sala.java, Funcion.java, Boleto.java
+    Persona.java                        -> Base abstracta de todos los usuarios
+    Administrador.java                  -> Entidad que mapea con tabla MySQL 'administradores'
+    Gerente.java, Supervisor.java       -> Personal operativo
+    Pelicula.java, Sala.java, Funcion.java, Boleto.java -> Entidades de Cartelera y Taquilla
     ClienteFan.java, ClienteMegaFan.java
+    ERoles.java, EEstados.java          -> Enumeradores de base de datos
+  daos/
+    ConexionBD.java                     -> Conexión JDBC Singleton con cine_db
+    AdministradorDAO.java               -> DAO con CRUD completo y contrato Listable<Administrador>
+    GestorImagenes.java                 -> Copia física a imagenes/ y borrado de disco (Actividad 3.9)
   persistencia/
-    Listable.java                 -> interfaz de persistencia en memoria (NO crear interfaces nuevas)
-    CineArrayList.java            -> implementación real de Listable<Administrador>
+    Listable.java                       -> Interfaz base de persistencia (NO crear interfaces nuevas)
+    CineArrayList.java                  -> Implementación en memoria
 src/main/resources/com/mycompany/cine/
-  cines.fxml, primary.fxml, secondary.fxml
+  login.fxml                            -> Pantalla de acceso
+  cines.fxml                            -> Pantalla principal de Taquilla y módulos
+  administradores.fxml                  -> Pantalla de validación en memoria (Act. 3.2)
+  administrador.fxml                    -> Pantalla de gestión DAO en MySQL (Act. 3.8 / 3.9)
+src/test/java/com/mycompany/cine/       -> 62 pruebas unitarias automatizadas
+imagenes/                               -> Almacenamiento local de fotos y carteles
 ```
 
-## 3. Cómo compilar y ejecutar
-Desde la raíz del repositorio (`pom.xml`):
+---
 
-```bash
-mvn compile               # compila fuentes principales
-mvn clean javafx:run      # ejecuta la app (requiere el plugin javafx-maven-plugin configurado en pom.xml)
-```
+## 3. REGLAS DE ORO SUPREMAS: PREVENCIÓN DE REGRESIONES Y PROTECCIÓN DE FLUJOS (INVIOLABLES)
 
-Nota: el POM compila con Java 11 (`release 11`) y declara JavaFX 13. No cambies la versión de JavaFX sin probar en el JDK disponible.
+> [!CAUTION]
+> **ESTÁ ESTRICTAMENTE PROHIBIDO:**
+> 1. **OCULTAR O DESCONECTAR LA TAQUILLA:** `cines.fxml` y `login.fxml` son el núcleo del proyecto. Bajo ninguna circunstancia se debe cambiar el inicio de la app a una pantalla aislada que no permita al usuario ver o volver a la Taquilla.
+> 2. **CAMBIAR EL PUNTO DE ENTRADA SIN AVISO:** El método `App.start` DEBE iniciar en `login.fxml`. Si por una tarea o video escolar se requiere probar otra pantalla, la IA DEBE advertir primero al usuario y proporcionar botones de retorno.
+> 3. **BORRAR CÓDIGO O MÓDULOS EXISTENTES:** Nunca borres clases, métodos, controladores ni vistas previas (Películas, Salas, Funciones, Personal, etc.). Todo cambio debe ser aditivo o compatible hacia atrás.
+> 4. **PANTALLAS HUÉRFANAS:** Cualquier nueva vista `.fxml` DEBE:
+>    - Tener un botón de acceso en el menú lateral de `cines.fxml`.
+>    - Tener en su cabecera un botón `⬅ Volver a Taquilla (cines.fxml)` y `🚪 Salir al Login`.
+> 5. **IGNORAR LAS PRUEBAS UNITARIAS:** Existen 62 pruebas unitarias. Ningún cambio puede darse por terminado si alguna prueba falla.
 
-## 4. Convenciones y reglas de oro (no romper estas)
+---
 
-### A. Persistencia
-- NO agregues interfaces nuevas. Usa y extiende la existente `Listable<T>` en `persistencia/`.
-- `CineArrayList` es la única implementación. Sus métodos deben estar implementados de verdad (no `UnsupportedOperationException` ni cuerpos vacíos).
-- Firmas de `Listable`:
-  - `boolean agregar(T elemento)`
-  - `boolean actualizar(T elemento)`
-  - `boolean eliminar(String dato)`
-  - `ArrayList<T> listar()`
-  - `ArrayList<T> consultar(String dato)`
-  - `T traer(String dato)`
+## 4. Convenciones de Dominio y Persistencia
 
-### B. Modelo / dominio
-- `Persona` es abstracta. Sus subclases concretas: `Administrador`, `Gerente`, `Supervisor`, `ClienteFan`, `ClienteMegaFan`.
-- `Persona` tiene campos: `id`, `nombre`, `apellido`, `email`, `contrasena`, `estado`, `activo`. No le quites campos ni cambies la firma del constructor de 6 args sin actualizar todas las subclases.
-- Las subclases de cliente/gerente/supervisor no tienen campo `apellido` separado; al llamar a `super(...)` pasan el `nombre` también como `apellido`.
-- El campo `estado` de `Persona` ahora se guarda mediante `setEstado()` (por defecto "Activo").
-- El campo `contrasena` se guarda mediante `setContrasena()`/`getContrasena()`.
+### A. Persistencia y DAO
+- NO agregues interfaces nuevas. Usa y extiende la existente `Listable<T>` en `persistencia/` o impleméntala en tus DAOs (`AdministradorDAO implements Listable<Administrador>`).
+- Las operaciones DAO deben ejecutar consultas preparadas reales (`PreparedStatement`) sobre MySQL `cine_db`.
+
+### B. Gestión de Imágenes (Actividad 3.9)
+- Las imágenes seleccionadas mediante `FileChooser` NO se deben guardar con su ruta absoluta de Windows.
+- Deben copiarse físicamente a la carpeta del proyecto `imagenes/<subcarpeta>/` usando `GestorImagenes.copiarImagenAlProyecto(...)`.
+- Al eliminar un registro de la base de datos, el archivo físico debe borrarse del disco con `GestorImagenes.eliminarImagenDelProyecto(...)`.
+- Nunca borrar placeholders por defecto (`default_user.png`, `default_movie.png`).
 
 ### C. Dinero
-- Usa `java.math.BigDecimal` para precios, montos, porcentajes y límites de descuento. NUNCA uses `double` para dinero.
-- Getters devuelven `BigDecimal`; setters validan `null` y signo con `compareTo(BigDecimal.ZERO)`.
-- En `toString` formatea con `setScale(2, RoundingMode.HALF_UP).toPlainString()` o `doubleValue()` para evitar `IllegalFormatConversionException`.
+- Usa siempre `java.math.BigDecimal` para precios, montos, porcentajes y descuentos. NUNCA `double` para dinero.
 
-### D. JavaFX / FXML / módulos
-- `module-info.java` debe `opens` y `exports` cada paquete que contenga controladores, modelo o persistencia usados por FXML/reflexión:
+### D. Módulos y JavaFX
+- `module-info.java` debe `opens` y `exports` cada paquete usado por FXML o reflexión:
   - `com.mycompany.cine`
   - `com.mycompany.cine.controladores`
   - `com.mycompany.cine.modelo`
   - `com.mycompany.cine.persistencia`
-- El `fx:controller` de `cines.fxml` debe apuntar a una clase que exista: actualmente `com.mycompany.cine.controladores.CinesController`.
-- `App.loadFXML(nombre)` busca `nombre + ".fxml"` en el paquete `com.mycompany.cine` de recursos.
-- `requires java.base;` es redundante (implícito), no lo agregues.
+  - `com.mycompany.cine.daos`
 
-### E. Igualdad
-- `equals`/`hashCode` de las entidades se basan únicamente en el `id`. No cambies este contrato sin actualizar `CineArrayList.agregar` (control de duplicados por id).
+---
 
-## 5. Qué falta / próximo trabajo recomendado
-1. Capa de servicio/logica de negocio (no existe; los controladores están vacíos o son plantillas).
-2. Repositorios/persistencia para `Pelicula`, `Sala`, `Funcion`, `Boleto`, `ClienteFan`, `ClienteMegaFan` (solo existe `CineArrayList<Administrador>`).
-3. Conectar `cines.fxml` (tiene labels/botones genéricos sin `fx:id`) con el controlador y el modelo.
-4. Validaciones de dominio de cine: solapamiento de funciones en una sala, aforo, disponibilidad de asientos, clasificación por edad.
-5. Pruebas unitarias: el POM trae JUnit 5 pero no hay `src/test/java`.
-6. Unificar constructores de `Persona` (actualmente coexisten el de 4 y el de 6 args; considerar dejar uno solo para evitar confusión).
-
-## 6. Errores ya corregidos (historial)
-- `cines.fxml`: `fx:controller` apuntaba a `mycompany.cines.cinesControladores` (inexistente) → ahora `com.mycompany.cine.controladores.CinesController`.
-- `module-info.java`: solo exportaba `com.mycompany.cine`; ahora abre/exporta controladores, modelo y persistencia. Se quitó `requires java.base`.
-- `Persona`: faltaban `contrasena`, `getEstado`/`setEstado`; constructor de 4 args ahora delega al de 6 con estado por defecto "Activo".
-- `ClienteFan`, `ClienteMegaFan`, `Gerente`, `Supervisor`: el `email` y el `apellido` iban intercambiados en la llamada a `super`; `estado` y `contrasena` se ignoraban. Ya se pasan correctamente.
-- `double` para dinero → `BigDecimal` en `Funcion.precioBase`, `Boleto.precioFinal`, `Gerente.montoApertura`, `Supervisor.limiteDescuento`, `ClienteFan.porcentajeBase`, `ClienteMegaFan.porcentajeVIP`.
-- `Listable` y `CineArrayList`: firma de `agregar` no coincidía y varios métodos lanzaban `UnsupportedOperationException`; ahora están implementados de verdad.
-- Se eliminó el duplicado `src/main/java/controladores/CinesController.java` (paquete incorrecto).
+## 5. Checklist Obligatorio para la IA antes de finalizar su respuesta
+Antes de responder al usuario diciendo que una tarea está lista, la IA debe verificar:
+- [ ] ¿Compila todo el proyecto sin errores (`javac` / `mvn compile`)?
+- [ ] ¿Pasan todas las 62+ pruebas unitarias?
+- [ ] ¿La aplicación sigue iniciando en `login.fxml` y abre `cines.fxml` (Taquilla)?
+- [ ] ¿Todas las vistas tienen botones para volver a la pantalla principal?
+- [ ] Si se modificó la navegación o algún archivo sensible, ¿se le explicó con claridad al usuario?

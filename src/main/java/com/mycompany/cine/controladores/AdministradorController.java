@@ -1,6 +1,7 @@
 package com.mycompany.cine.controladores;
 
 import com.mycompany.cine.daos.AdministradorDAO;
+import com.mycompany.cine.daos.GestorImagenes;
 import com.mycompany.cine.modelo.Administrador;
 import com.mycompany.cine.modelo.EEstados;
 import com.mycompany.cine.modelo.ERoles;
@@ -26,7 +27,7 @@ import javafx.stage.FileChooser;
 
 /**
  * Controlador JavaFX con comunicación directa al DAO para la gestión de Administradores.
- * Adaptado a la arquitectura modular del proyecto Cine y esquema MySQL (cine_db).
+ * Incluye gestión física de archivos de imagen (copia a carpeta local y borrado de disco, Actividad 3.9).
  */
 public class AdministradorController implements Initializable {
 
@@ -85,6 +86,9 @@ public class AdministradorController implements Initializable {
     private final AdministradorDAO administradorDAO = new AdministradorDAO();
     private final ObservableList<Administrador> listaObservable = FXCollections.observableArrayList();
 
+    // Archivo de imagen seleccionado pendiente de ser copiado al guardar o actualizar
+    private File archivoImagenSeleccionado = null;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Vinculación de columnas con los atributos del modelo
@@ -123,6 +127,7 @@ public class AdministradorController implements Initializable {
         );
         File archivoSeleccionado = fileChooser.showOpenDialog(txtId.getScene().getWindow());
         if (archivoSeleccionado != null) {
+            this.archivoImagenSeleccionado = archivoSeleccionado;
             txtRutaImagen.setText(archivoSeleccionado.getAbsolutePath());
             cargarImagenVistaPrevia(archivoSeleccionado.getAbsolutePath());
         }
@@ -147,32 +152,48 @@ public class AdministradorController implements Initializable {
             return;
         }
 
-        // Si los apellidos no fueron ingresados por separado pero el nombre incluye espacios
-        if (apellidos.isEmpty() && nombre.contains(" ")) {
-            int ultimoEspacio = nombre.lastIndexOf(" ");
-            apellidos = nombre.substring(ultimoEspacio + 1);
-            nombre = nombre.substring(0, ultimoEspacio);
-        }
+        try {
+            // Si los apellidos no fueron ingresados por separado pero el nombre incluye espacios
+            if (apellidos.isEmpty() && nombre.contains(" ")) {
+                int ultimoEspacio = nombre.lastIndexOf(" ");
+                apellidos = nombre.substring(ultimoEspacio + 1);
+                nombre = nombre.substring(0, ultimoEspacio);
+            } else if (apellidos.isEmpty()) {
+                apellidos = nombre;
+            }
 
-        Administrador nuevoAdmin = new Administrador(
-                0, usuario, nombre, apellidos, email, clave,
-                rol != null ? rol.getDescripcion() : "Administrador",
-                rutaImagen.isEmpty() ? "default_user.png" : rutaImagen,
-                estado != null ? estado.getDescripcion() : "Activo",
-                null, null
-        );
-        nuevoAdmin.setTelefono(telefono);
-        nuevoAdmin.setDireccion(direccion);
+            // Copiar físicamente la imagen al proyecto si fue seleccionada (Actividad 3.9)
+            if (archivoImagenSeleccionado != null) {
+                rutaImagen = GestorImagenes.copiarImagenAlProyecto(archivoImagenSeleccionado, "administradores", usuario);
+            } else if (rutaImagen.isEmpty()) {
+                rutaImagen = GestorImagenes.IMAGEN_POR_DEFECTO_USUARIO;
+            }
 
-        // Registro directo mediante el DAO
-        if (administradorDAO.guardar(nuevoAdmin)) {
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito",
-                    "Administrador registrado correctamente en la base de datos.");
-            actualizarTabla();
-            limpiarCampos();
-        } else {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error",
-                    "No se pudo guardar el registro. Verifique la conexión a MySQL o que el usuario/correo no estén duplicados.");
+            Administrador nuevoAdmin = new Administrador(
+                    0, usuario, nombre, apellidos, email, clave,
+                    rol != null ? rol.getDescripcion() : "Administrador",
+                    rutaImagen,
+                    estado != null ? estado.getDescripcion() : "Activo",
+                    null, null
+            );
+            nuevoAdmin.setTelefono(telefono);
+            nuevoAdmin.setDireccion(direccion);
+
+            // Registro directo mediante el DAO
+            if (administradorDAO.guardar(nuevoAdmin)) {
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito",
+                        "Administrador registrado correctamente en la base de datos.");
+                archivoImagenSeleccionado = null;
+                actualizarTabla();
+                limpiarCampos();
+            } else {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error",
+                        "No se pudo guardar el registro. Verifique la conexión a MySQL o que el usuario/correo no estén duplicados.");
+            }
+        } catch (IllegalArgumentException e) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Dato Inválido", e.getMessage());
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error Inesperado", "Ocurrió un error al procesar el guardado: " + e.getMessage());
         }
     }
 
@@ -209,10 +230,22 @@ public class AdministradorController implements Initializable {
                 nombre = nombre.substring(0, ultimoEspacio);
             }
 
+            Administrador adminActual = administradorDAO.obtenerPorId(id);
+
+            // Si se seleccionó una imagen nueva, copiarla y borrar la anterior del disco
+            if (archivoImagenSeleccionado != null) {
+                if (adminActual != null && adminActual.getRutaImagen() != null) {
+                    GestorImagenes.eliminarImagenDelProyecto(adminActual.getRutaImagen());
+                }
+                rutaImagen = GestorImagenes.copiarImagenAlProyecto(archivoImagenSeleccionado, "administradores", usuario);
+            } else if (rutaImagen.isEmpty() && adminActual != null) {
+                rutaImagen = adminActual.getRutaImagen();
+            }
+
             Administrador adminActualizar = new Administrador(
                     id, usuario, nombre, apellidos, email, clave,
                     rol != null ? rol.getDescripcion() : "Administrador",
-                    rutaImagen.isEmpty() ? "default_user.png" : rutaImagen,
+                    rutaImagen.isEmpty() ? GestorImagenes.IMAGEN_POR_DEFECTO_USUARIO : rutaImagen,
                     estado != null ? estado.getDescripcion() : "Activo",
                     null, null
             );
@@ -223,6 +256,7 @@ public class AdministradorController implements Initializable {
             if (administradorDAO.actualizar(adminActualizar)) {
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito",
                         "Registro actualizado correctamente en la base de datos.");
+                archivoImagenSeleccionado = null;
                 actualizarTabla();
                 limpiarCampos();
             } else {
@@ -231,6 +265,10 @@ public class AdministradorController implements Initializable {
             }
         } catch (NumberFormatException e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "Identificador no válido.");
+        } catch (IllegalArgumentException e) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Dato Inválido", e.getMessage());
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error Inesperado", "Ocurrió un error al actualizar: " + e.getMessage());
         }
     }
 
@@ -244,9 +282,15 @@ public class AdministradorController implements Initializable {
 
         try {
             int id = Integer.parseInt(txtId.getText().trim());
+            Administrador adminEliminar = administradorDAO.obtenerPorId(id);
 
             // Eliminación directa mediante el DAO
             if (administradorDAO.eliminar(id)) {
+                // Borrar el archivo de imagen del proyecto (Actividad 3.9)
+                if (adminEliminar != null && adminEliminar.getRutaImagen() != null) {
+                    GestorImagenes.eliminarImagenDelProyecto(adminEliminar.getRutaImagen());
+                }
+
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito",
                         "Administrador eliminado correctamente de la base de datos.");
                 actualizarTabla();
@@ -257,6 +301,10 @@ public class AdministradorController implements Initializable {
             }
         } catch (NumberFormatException e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "Identificador no válido.");
+        } catch (IllegalArgumentException e) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Dato Inválido", e.getMessage());
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error Inesperado", "Ocurrió un error al actualizar: " + e.getMessage());
         }
     }
 
@@ -303,19 +351,13 @@ public class AdministradorController implements Initializable {
             cmbEstado.setValue(admin.getEstadoEnum());
             txtRutaImagen.setText(admin.getRutaImagen() != null ? admin.getRutaImagen() : "");
             cargarImagenVistaPrevia(admin.getRutaImagen());
+            archivoImagenSeleccionado = null;
         }
     }
 
     private void cargarImagenVistaPrevia(String ruta) {
-        if (ruta != null && !ruta.trim().isEmpty()) {
-            File archivo = new File(ruta);
-            if (archivo.exists()) {
-                Image imagen = new Image(archivo.toURI().toString());
-                imgVistaPrevia.setImage(imagen);
-                return;
-            }
-        }
-        imgVistaPrevia.setImage(null);
+        Image imagen = GestorImagenes.cargarImagen(ruta);
+        imgVistaPrevia.setImage(imagen);
     }
 
     private void actualizarTabla() {
@@ -336,6 +378,7 @@ public class AdministradorController implements Initializable {
         cmbEstado.setValue(EEstados.ACTIVO);
         txtRutaImagen.setText("");
         imgVistaPrevia.setImage(null);
+        archivoImagenSeleccionado = null;
         tblAdministradores.getSelectionModel().clearSelection();
     }
 

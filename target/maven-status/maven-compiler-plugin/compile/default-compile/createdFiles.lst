@@ -18,6 +18,7 @@ com\mycompany\cine\App.class
 com\mycompany\cine\controladores\AdministradorController.class
 com\mycompany\cine\modelo\EEstados.class
 com\mycompany\cine\modelo\Supervisor.class
+com\mycompany\cine\daos\GestorImagenes.class
 com\mycompany\cine\modelo\ClienteMegaFan.class
 com\mycompany\cine\modelo\ERoles.class
 com\mycompany\cine\modelo\Persona.class

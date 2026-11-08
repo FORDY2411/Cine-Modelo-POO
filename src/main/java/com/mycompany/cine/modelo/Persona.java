@@ -75,8 +75,8 @@ public abstract class Persona {
     }
 
     public final void setId(int id) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("El id debe ser un entero positivo.");
+        if (id < 0) {
+            throw new IllegalArgumentException("El id no puede ser negativo.");
         }
         this.id = id;
     }
@@ -106,9 +106,10 @@ public abstract class Persona {
 
     public void setApellido(String apellido) {
         if (apellido == null || apellido.trim().isEmpty()) {
-            throw new IllegalArgumentException("El apellido no puede estar vacío.");
+            this.apellido = (this.nombre != null && !this.nombre.trim().isEmpty()) ? this.nombre : "Sin Apellido";
+        } else {
+            this.apellido = apellido.trim();
         }
-        this.apellido = apellido.trim();
     }
 
     public String getApellidos() {

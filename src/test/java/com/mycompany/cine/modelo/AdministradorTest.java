@@ -76,6 +76,19 @@ public class AdministradorTest {
     }
 
     @Test
+    @DisplayName("Debe permitir instanciación con ID = 0 para nuevas inserciones en MySQL (AUTO_INCREMENT)")
+    public void testIdCeroPermitidoParaNuevosRegistros() {
+        assertDoesNotThrow(() -> {
+            Administrador nuevo = new Administrador(
+                    0, "nuevo_user", "Mario", "Bros", "mario@cine.com",
+                    "clave123", "Administrador", "default_user.png", "Activo", null, null
+            );
+            assertEquals(0, nuevo.getId());
+            assertEquals("nuevo_user", nuevo.getUsuario());
+        });
+    }
+
+    @Test
     @DisplayName("Debe conservar compatibilidad con constructor heredado de 5 parámetros")
     public void testCompatibilidadConstructorPrevio() {
         Administrador admin = new Administrador("Supervisor", 5, "Pedro", "García", "pedro@cine.com");
