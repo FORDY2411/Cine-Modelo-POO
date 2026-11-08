@@ -1,0 +1,230 @@
+================================================================================
+GUÍA PASO A PASO: CREACIÓN DE LA BASE DE DATOS EN XAMPP (MySQL / phpMyAdmin)
+Actividad 3.5: Base de Datos - POO DSM 3°B TM
+Proyecto: Sistema de Gestión de Cine y Taquilla
+Autor: Leonardo David Estrada Amador
+================================================================================
+
+--------------------------------------------------------------------------------
+PARTE 1: INICIAR SERVICIOS EN XAMPP
+--------------------------------------------------------------------------------
+1. Abre el "XAMPP Control Panel" en tu computadora.
+2. Localiza el módulo "Apache" y haz clic en el botón "Start".
+3. Localiza el módulo "MySQL" y haz clic en el botón "Start".
+4. Verifica que ambos se pongan en color verde (running).
+
+--------------------------------------------------------------------------------
+PARTE 2: OPCIONES PARA CREAR LA BASE DE DATOS
+--------------------------------------------------------------------------------
+Tienes dos métodos para crearla. Elige el que prefieras:
+
+================================================================================
+>>> MÉTODO 1 (RECOMENDADO): A TRAVÉS DE phpMyAdmin (Interfaz Web) <<<
+================================================================================
+1. En el Panel de Control de XAMPP, en la fila de MySQL, haz clic en el botón "Admin".
+   (O abre tu navegador y entra a: http://localhost/phpmyadmin)
+
+2. En el menú superior de phpMyAdmin, haz clic en la pestaña "SQL".
+
+3. Copia y pega TODO el bloque de código SQL que viene en la PARTE 3 de este 
+   documento (desde "DROP DATABASE..." hasta el último INSERT).
+
+4. Haz clic en el botón "Continuar" (o "Go") ubicado en la esquina inferior derecha.
+
+5. ¡Listo! Verás el mensaje verde de éxito y en la columna izquierda aparecerá
+   la base de datos "cine_db" con sus 6 tablas:
+   - administradores
+   - clientes
+   - peliculas
+   - salas
+   - funciones
+   - boletos
+
+================================================================================
+>>> MÉTODO 2: A TRAVÉS DE LA CONSOLA (Shell de XAMPP) <<<
+================================================================================
+1. En el panel de control de XAMPP, haz clic en el botón "Shell" (a la derecha).
+2. Escribe el siguiente comando para conectarte a MySQL y presiona Enter:
+   mysql -u root -p
+   (Si te pide contraseña, presiona Enter sin escribir nada).
+3. Una vez dentro de MySQL (verás "MariaDB [(none)]>"), copia y pega los 
+   comandos de la PARTE 3 o ejecuta el archivo .sql directamente con:
+   source C:/Users/Fordiis/Documents/NetBeansProjects/Cine/sql/creacion_base_datos_cine.sql;
+4. Para salir de la consola escribe:
+   exit;
+
+
+--------------------------------------------------------------------------------
+PARTE 3: CÓDIGOS SQL COMPLETOS (COPIAR Y PEGAR EN phpMyAdmin -> Pestaña SQL)
+--------------------------------------------------------------------------------
+
+-- 1. CREACIÓN Y SELECCIÓN DE BASE DE DATOS
+DROP DATABASE IF EXISTS cine_db;
+CREATE DATABASE cine_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE cine_db;
+
+-- 2. TABLA: administradores (Personal: Admin, Gerente, Supervisor)
+CREATE TABLE administradores (
+    id INT AUTO_INCREMENT,
+    usuario VARCHAR(50) NOT NULL,
+    nombres VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
+    correo VARCHAR(150) NOT NULL,
+    contrasena VARCHAR(255) NOT NULL,
+    rol ENUM('Administrador', 'Gerente', 'Supervisor') NOT NULL,
+    ruta_imagen VARCHAR(255) DEFAULT 'default_user.png',
+    estado ENUM('Activo', 'Inactivo', 'Bloqueado') NOT NULL DEFAULT 'Activo',
+    creado DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    editado DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT pk_administradores PRIMARY KEY (id),
+    CONSTRAINT uq_administradores_usuario UNIQUE (usuario),
+    CONSTRAINT uq_administradores_correo UNIQUE (correo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 3. TABLA: clientes (Clientes generales, Fan y MegaFan)
+CREATE TABLE clientes (
+    id_cliente INT AUTO_INCREMENT,
+    nombres VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
+    correo VARCHAR(150) NOT NULL,
+    contrasena VARCHAR(255) NOT NULL,
+    tipo_cliente ENUM('General', 'Fan', 'MegaFan') NOT NULL DEFAULT 'General',
+    puntos INT NOT NULL DEFAULT 0,
+    porcentaje_descuento DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+    pase_prioritario BOOLEAN NOT NULL DEFAULT FALSE,
+    estado ENUM('Activo', 'Inactivo', 'Suspendido') NOT NULL DEFAULT 'Activo',
+    fecha_registro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT pk_clientes PRIMARY KEY (id_cliente),
+    CONSTRAINT uq_clientes_correo UNIQUE (correo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 4. TABLA: peliculas
+CREATE TABLE peliculas (
+    id_pelicula INT AUTO_INCREMENT,
+    titulo VARCHAR(150) NOT NULL,
+    duracion_min INT NOT NULL,
+    clasificacion VARCHAR(10) NOT NULL,
+    genero VARCHAR(50) NOT NULL,
+    estado ENUM('En Cartelera', 'Próximamente', 'Retirada') NOT NULL DEFAULT 'En Cartelera',
+    ruta_imagen VARCHAR(255) NULL,
+    CONSTRAINT pk_peliculas PRIMARY KEY (id_pelicula),
+    CONSTRAINT chk_pelicula_duracion CHECK (duracion_min > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. TABLA: salas
+CREATE TABLE salas (
+    id_sala INT AUTO_INCREMENT,
+    numero INT NOT NULL,
+    capacidad INT NOT NULL,
+    tecnologia VARCHAR(30) NOT NULL DEFAULT '2D',
+    estado ENUM('Disponible', 'Mantenimiento', 'Limpieza') NOT NULL DEFAULT 'Disponible',
+    CONSTRAINT pk_salas PRIMARY KEY (id_sala),
+    CONSTRAINT uq_salas_numero UNIQUE (numero),
+    CONSTRAINT chk_sala_capacidad CHECK (capacidad > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 6. TABLA: funciones (Programación de horarios y salas)
+CREATE TABLE funciones (
+    id_funcion INT AUTO_INCREMENT,
+    id_pelicula INT NOT NULL,
+    id_sala INT NOT NULL,
+    fecha_hora DATETIME NOT NULL,
+    precio_base DECIMAL(10,2) NOT NULL,
+    estado ENUM('Programada', 'En Proyección', 'Finalizada', 'Cancelada', 'Agotada') NOT NULL DEFAULT 'Programada',
+    CONSTRAINT pk_funciones PRIMARY KEY (id_funcion),
+    CONSTRAINT fk_funciones_peliculas FOREIGN KEY (id_pelicula) 
+        REFERENCES peliculas (id_pelicula) 
+        ON UPDATE CASCADE 
+        ON DELETE RESTRICT,
+    CONSTRAINT fk_funciones_salas FOREIGN KEY (id_sala) 
+        REFERENCES salas (id_sala) 
+        ON UPDATE CASCADE 
+        ON DELETE RESTRICT,
+    CONSTRAINT chk_precio_base CHECK (precio_base > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_funciones_pelicula ON funciones (id_pelicula);
+CREATE INDEX idx_funciones_sala ON funciones (id_sala);
+CREATE INDEX idx_funciones_fecha ON funciones (fecha_hora);
+
+-- 7. TABLA: boletos (Venta / Emisión de tickets)
+CREATE TABLE boletos (
+    id_boleto INT AUTO_INCREMENT,
+    id_funcion INT NOT NULL,
+    id_cliente INT NULL,
+    id_administrador INT NULL,
+    numero_asiento VARCHAR(10) NOT NULL,
+    precio_final DECIMAL(10,2) NOT NULL,
+    metodo_pago ENUM('Efectivo', 'Tarjeta', 'Puntos', 'Transferencia') NOT NULL DEFAULT 'Efectivo',
+    estado ENUM('Emitido', 'Usado', 'Cancelado', 'Reembolsado') NOT NULL DEFAULT 'Emitido',
+    fecha_emision DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT pk_boletos PRIMARY KEY (id_boleto),
+    CONSTRAINT fk_boletos_funciones FOREIGN KEY (id_funcion) 
+        REFERENCES funciones (id_funcion) 
+        ON UPDATE CASCADE 
+        ON DELETE RESTRICT,
+    CONSTRAINT fk_boletos_clientes FOREIGN KEY (id_cliente) 
+        REFERENCES clientes (id_cliente) 
+        ON UPDATE CASCADE 
+        ON DELETE SET NULL,
+    CONSTRAINT fk_boletos_administradores FOREIGN KEY (id_administrador) 
+        REFERENCES administradores (id) 
+        ON UPDATE CASCADE 
+        ON DELETE SET NULL,
+    CONSTRAINT uq_asiento_funcion UNIQUE (id_funcion, numero_asiento),
+    CONSTRAINT chk_precio_final CHECK (precio_final >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_boletos_funcion ON boletos (id_funcion);
+CREATE INDEX idx_boletos_cliente ON boletos (id_cliente);
+CREATE INDEX idx_boletos_administrador ON boletos (id_administrador);
+CREATE INDEX idx_boletos_fecha ON boletos (fecha_emision);
+
+-- 8. INSERCIÓN DE DATOS DE PRUEBA
+INSERT INTO administradores (usuario, nombres, apellidos, correo, contrasena, rol, ruta_imagen, estado) VALUES
+('admin_leo', 'Leonardo David', 'Estrada Amador', 'leo.estrada@cine.com', 'admin123', 'Administrador', 'default_user.png', 'Activo'),
+('gerente_ana', 'Ana Gabriela', 'Rojas Soto', 'ana.rojas@cine.com', 'gerente123', 'Gerente', 'default_user.png', 'Activo'),
+('super_carlos', 'Carlos Eduardo', 'Mendoza Peña', 'carlos.m@cine.com', 'super123', 'Supervisor', 'default_user.png', 'Activo');
+
+INSERT INTO clientes (nombres, apellidos, correo, contrasena, tipo_cliente, puntos, porcentaje_descuento, pase_prioritario, estado) VALUES
+('Juan Pablo', 'Gómez Luna', 'juan.gomez@gmail.com', 'fan123', 'Fan', 120, 10.00, FALSE, 'Activo'),
+('Valeria', 'Navarro Torres', 'valeria.navarro@gmail.com', 'vip123', 'MegaFan', 450, 20.00, TRUE, 'Activo'),
+('Roberto', 'Hernández Paz', 'roberto.hdez@outlook.com', 'general123', 'General', 0, 0.00, FALSE, 'Activo');
+
+INSERT INTO salas (numero, capacidad, tecnologia, estado) VALUES
+(1, 120, '2D Estándar', 'Disponible'),
+(2, 100, '3D Digital', 'Disponible'),
+(3, 80, 'IMAX Laser', 'Disponible'),
+(4, 50, '4DX Motion', 'Mantenimiento');
+
+INSERT INTO peliculas (titulo, duracion_min, clasificacion, genero, estado, ruta_imagen) VALUES
+('Avatar: El Sentido del Agua', 192, 'B', 'Ciencia Ficción', 'En Cartelera', 'avatar.jpg'),
+('Super Mario Bros. La Película', 92, 'AA', 'Animación / Aventura', 'En Cartelera', 'mario.jpg'),
+('Oppenheimer', 180, 'B15', 'Drama Histórico', 'En Cartelera', 'oppenheimer.jpg'),
+('Dune: Parte 2', 166, 'B', 'Ciencia Ficción', 'Próximamente', 'dune2.jpg');
+
+INSERT INTO funciones (id_pelicula, id_sala, fecha_hora, precio_base, estado) VALUES
+(1, 3, '2026-10-28 16:00:00', 140.00, 'Programada'),
+(1, 3, '2026-10-28 20:00:00', 140.00, 'Programada'),
+(2, 1, '2026-10-28 15:30:00', 80.00, 'Programada'),
+(2, 2, '2026-10-28 18:00:00', 95.00, 'Programada'),
+(3, 1, '2026-10-28 21:00:00', 85.00, 'Programada');
+
+INSERT INTO boletos (id_funcion, id_cliente, id_administrador, numero_asiento, precio_final, metodo_pago, estado) VALUES
+(1, 2, 2, 'F10', 112.00, 'Tarjeta', 'Emitido'),
+(1, 2, 2, 'F11', 112.00, 'Tarjeta', 'Emitido'),
+(3, 1, 3, 'C05', 72.00, 'Efectivo', 'Emitido'),
+(4, 3, 2, 'D08', 95.00, 'Transferencia', 'Emitido');
+
+
+--------------------------------------------------------------------------------
+PARTE 4: CÓMO TOMAR LA CAPTURA DE PANTALLA PARA LA TAREA
+--------------------------------------------------------------------------------
+Para cumplir con la solicitud del profesor ("una captura de pantalla de la base de datos creada, tomen como referencia la imagen anexa"):
+
+1. En phpMyAdmin, haz clic en el nombre de la base de datos "cine_db" en la barra lateral izquierda.
+2. En el menú de pestañas superior, haz clic en "Más" (o "More") y selecciona "Diseñador" (o "Designer").
+3. Verás el diagrama de bloques relacional idéntico a la imagen anexa de la tarea (con las tablas, llaves PK, FK y las flechas de relación conectadas).
+4. Acomoda las tablas arrastrándolas con el ratón para que se aprecien todas claramente.
+5. Toma la captura de pantalla (con la tecla Windows + Shift + S o Impr Pant) de esa vista del Diseñador donde se muestren las tablas relacionadas.
+================================================================================

@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="730.0" prefWidth="1120.0" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.cine.controladores.AdministradoresController">
+   <top>
+      <VBox style="-fx-background-color: #1e293b; -fx-padding: 14 20 14 20;" BorderPane.alignment="CENTER">
+         <children>
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
+               <children>
+                  <VBox HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="👥 Gestión de Administradores (Actividad 3.2)" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="22.0" />
+                           </font>
+                        </Label>
+                        <Label text="Validación de Vistas en Tiempo Real sin Conexión Directa a BD (Columnas MySQL)" textFill="#94a3b8">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </VBox>
+                  <Button mnemonicParsing="false" onAction="#handleVolverCines" prefHeight="36.0" style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 6;" text="🎬 Ir a Vista Cartelera (cines.fxml)" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </top>
+   <center>
+      <HBox spacing="15.0" style="-fx-background-color: #f1f5f9; -fx-padding: 15;" BorderPane.alignment="CENTER">
+         <children>
+            <!-- ===================== PANEL IZQUIERDO: FORMULARIO ===================== -->
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefWidth="420.0" style="-fx-background-color: transparent; -fx-background: transparent;">
+               <content>
+                  <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 16; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-background-radius: 8;">
+                     <children>
+                        <Label text="Formulario de Administrador" textFill="#0f172a">
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font>
+                        </Label>
+                        <Label text="Todos los campos con * son obligatorios." textFill="#64748b">
+                           <font>
+                              <Font size="11.0" />
+                           </font>
+                        </Label>
+
+                        <!-- Campo: ID -->
+                        <VBox spacing="2.0">
+                           <children>
+                              <Label text="ID *:" textFill="#334155" />
+                              <TextField fx:id="txtId" promptText="Ej. 1 (entero positivo)" />
+                              <Label fx:id="lblErrorId" managed="false" text="Este campo es obligatorio." textFill="#dc2626" visible="false">
+                                 <font>
+                                    <Font size="11.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+
+                        <!-- Campo: Usuario -->
+                        <VBox spacing="2.0">
+                           <children>
+                              <Label text="Usuario *:" textFill="#334155" />
+                              <TextField fx:id="txtUsuario" promptText="Ej. admin_taquilla (3 a 20 car.)" />
+                              <Label fx:id="lblErrorUsuario" managed="false" text="Este campo es obligatorio." textFill="#dc2626" visible="false">
+                                 <font>
+                                    <Font size="11.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+
+                        <!-- Campo: Nombres -->
+                        <VBox spacing="2.0">
+                           <children>
+                              <Label text="Nombres *:" textFill="#334155" />
+                              <TextField fx:id="txtNombres" promptText="Ej. Carlos Alberto" />
+                              <Label fx:id="lblErrorNombres" managed="false" text="Este campo es obligatorio." textFill="#dc2626" visible="false">
+                                 <font>
+                                    <Font size="11.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+
+                        <!-- Campo: Apellidos -->
+                        <VBox spacing="2.0">
+                           <children>
+                              <Label text="Apellidos *:" textFill="#334155" />
+                              <TextField fx:id="txtApellidos" promptText="Ej. Gómez Pérez" />
+                              <Label fx:id="lblErrorApellidos" managed="false" text="Este campo es obligatorio." textFill="#dc2626" visible="false">
+                                 <font>
+                                    <Font size="11.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+
+                        <!-- Campo: Correo -->
+                        <VBox spacing="2.0">
+                           <children>
+                              <Label text="Correo Electrónico *:" textFill="#334155" />
+                              <TextField fx:id="txtCorreo" promptText="Ej. usuario@cine.com" />
+                              <Label fx:id="lblErrorCorreo" managed="false" text="Este campo es obligatorio." textFill="#dc2626" visible="false">
+                                 <font>
+                                    <Font size="11.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+
+                        <!-- Campo: Contraseña -->
+                        <VBox spacing="2.0">
+                           <children>
+                              <Label text="Contraseña *:" textFill="#334155" />
+                              <PasswordField fx:id="txtContrasena" promptText="Mínimo 6 caracteres" />
+                              <Label fx:id="lblErrorContrasena" managed="false" text="Este campo es obligatorio." textFill="#dc2626" visible="false">
+                                 <font>
+                                    <Font size="11.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+
+                        <!-- Campo: Rol -->
+                        <VBox spacing="2.0">
+                           <children>
+                              <Label text="Rol *:" textFill="#334155" />
+                              <ComboBox fx:id="cmbRol" maxWidth="1.7976931348623157E308" promptText="Seleccionar rol..." />
+                              <Label fx:id="lblErrorRol" managed="false" text="Este campo es obligatorio." textFill="#dc2626" visible="false">
+                                 <font>
+                                    <Font size="11.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+
+                        <!-- Campo: Estado -->
+                        <VBox spacing="2.0">
+                           <children>
+                              <Label text="Estado *:" textFill="#334155" />
+                              <ComboBox fx:id="cmbEstado" maxWidth="1.7976931348623157E308" promptText="Seleccionar estado..." />
+                              <Label fx:id="lblErrorEstado" managed="false" text="Este campo es obligatorio." textFill="#dc2626" visible="false">
+                                 <font>
+                                    <Font size="11.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+
+                        <!-- Campo: Ruta Imagen / Foto -->
+                        <VBox spacing="4.0" style="-fx-border-color: #e2e8f0; -fx-padding: 8; -fx-background-color: #f8fafc; -fx-border-radius: 6; -fx-background-radius: 6;">
+                           <children>
+                              <Label text="Foto de Perfil / Ruta Imagen:" textFill="#475569">
+                                 <font>
+                                    <Font name="System Bold" size="11.0" />
+                                 </font>
+                              </Label>
+                              <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                 <children>
+                                    <ImageView fx:id="imgFotoPreview" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true" />
+                                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <Label fx:id="lblRutaImagen" text="Sin imagen seleccionada" textFill="#64748b">
+                                             <font>
+                                                <Font size="10.0" />
+                                             </font>
+                                          </Label>
+                                          <HBox spacing="6.0">
+                                             <children>
+                                                <Button mnemonicParsing="false" onAction="#handleSeleccionarImagen" style="-fx-background-color: #0284c7; -fx-text-fill: white; -fx-cursor: hand;" text="Elegir foto..." />
+                                                <Button mnemonicParsing="false" onAction="#handleQuitarImagen" style="-fx-background-color: #94a3b8; -fx-text-fill: white; -fx-cursor: hand;" text="Quitar" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+
+                        <!-- Metadatos de BD: Creado y Editado -->
+                        <HBox spacing="8.0">
+                           <children>
+                              <VBox spacing="2.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label text="Creado:" textFill="#64748b">
+                                       <font>
+                                          <Font size="10.0" />
+                                       </font>
+                                    </Label>
+                                    <TextField fx:id="txtCreado" editable="false" promptText="Auto (timestamp)" style="-fx-background-color: #f1f5f9;" />
+                                 </children>
+                              </VBox>
+                              <VBox spacing="2.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label text="Editado:" textFill="#64748b">
+                                       <font>
+                                          <Font size="10.0" />
+                                       </font>
+                                    </Label>
+                                    <TextField fx:id="txtEditado" editable="false" promptText="Auto (timestamp)" style="-fx-background-color: #f1f5f9;" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+
+                        <!-- ===================== BOTONES DE ACCIÓN (ESPECIFICACIÓN 3.2) ===================== -->
+                        <VBox spacing="8.0" style="-fx-padding: 8 0 0 0;">
+                           <children>
+                              <HBox alignment="CENTER" spacing="6.0">
+                                 <children>
+                                    <Button fx:id="btnNuevo" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleNuevo" prefHeight="32.0" style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Nuevo" HBox.hgrow="ALWAYS" />
+                                    <Button fx:id="btnValidar" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleValidar" prefHeight="32.0" style="-fx-background-color: #0d9488; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Validar" HBox.hgrow="ALWAYS" />
+                                    <Button fx:id="btnGuardar" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleGuardar" prefHeight="32.0" style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Guardar" HBox.hgrow="ALWAYS" />
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER" spacing="6.0">
+                                 <children>
+                                    <Button fx:id="btnEditar" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleEditar" prefHeight="32.0" style="-fx-background-color: #eab308; -fx-text-fill: black; -fx-font-weight: bold; -fx-cursor: hand;" text="Editar" HBox.hgrow="ALWAYS" />
+                                    <Button fx:id="btnEliminar" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleEliminar" prefHeight="32.0" style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Eliminar" HBox.hgrow="ALWAYS" />
+                                    <Button fx:id="btnLimpiar" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLimpiar" prefHeight="32.0" style="-fx-background-color: #64748b; -fx-text-fill: white; -fx-cursor: hand;" text="Limpiar / Cancelar" HBox.hgrow="ALWAYS" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+
+                     </children>
+                  </VBox>
+               </content>
+            </ScrollPane>
+
+            <!-- ===================== PANEL DERECHO: TABLA BD ===================== -->
+            <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <HBox alignment="CENTER_LEFT">
+                     <children>
+                        <Label text="Listado de Administradores (Columnas de Base de Datos)" textFill="#0f172a">
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label text="* Selección en tabla habilita Editar y Eliminar" textFill="#64748b">
+                           <font>
+                              <Font size="11.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+
+                  <TableView fx:id="tblAdministradores" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="colId" prefWidth="45.0" text="ID" />
+                        <TableColumn fx:id="colUsuario" prefWidth="95.0" text="Usuario" />
+                        <TableColumn fx:id="colNombres" prefWidth="120.0" text="Nombres" />
+                        <TableColumn fx:id="colApellidos" prefWidth="120.0" text="Apellidos" />
+                        <TableColumn fx:id="colCorreo" prefWidth="150.0" text="Correo" />
+                        <TableColumn fx:id="colContrasena" prefWidth="80.0" text="Contraseña" />
+                        <TableColumn fx:id="colRol" prefWidth="110.0" text="Rol" />
+                        <TableColumn fx:id="colRutaImagen" prefWidth="100.0" text="Ruta Imagen" />
+                        <TableColumn fx:id="colEstado" prefWidth="75.0" text="Estado" />
+                        <TableColumn fx:id="colCreado" prefWidth="125.0" text="Creado" />
+                        <TableColumn fx:id="colEditado" prefWidth="125.0" text="Editado" />
+                     </columns>
+                  </TableView>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </center>
+</BorderPane>

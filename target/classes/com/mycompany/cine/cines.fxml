@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="700.0" prefWidth="1060.0" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.cine.controladores.CinesController">
+   <top>
+      <VBox style="-fx-background-color: #1e293b; -fx-padding: 14 20 14 20;" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="🎬 Sistema de Gestión de Cine - Taquilla" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="22.0" />
+               </font>
+            </Label>
+            <Label text="Administración de Cartelera, Salas, Funciones y Personal" textFill="#94a3b8">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </Label>
+         </children>
+      </VBox>
+   </top>
+   <left>
+      <VBox prefWidth="190.0" spacing="10.0" style="-fx-background-color: #0f172a; -fx-padding: 16;" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="MÓDULOS" textFill="#64748b">
+               <font>
+                  <Font name="System Bold" size="11.0" />
+               </font>
+            </Label>
+            <Button fx:id="btnNavPeliculas" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleMostrarPeliculas" prefHeight="38.0" style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="🎬 Películas" />
+            <Button fx:id="btnNavSalas" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleMostrarSalas" prefHeight="38.0" style="-fx-background-color: #334155; -fx-text-fill: white; -fx-cursor: hand;" text="🏛️ Salas" />
+            <Button fx:id="btnNavFunciones" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleMostrarFunciones" prefHeight="38.0" style="-fx-background-color: #334155; -fx-text-fill: white; -fx-cursor: hand;" text="🎟️ Funciones" />
+            <Button fx:id="btnNavUsuarios" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleMostrarUsuarios" prefHeight="38.0" style="-fx-background-color: #334155; -fx-text-fill: white; -fx-cursor: hand;" text="👥 Personal" />
+            <Button fx:id="btnNavAdministradores" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAbrirAdministradores" prefHeight="38.0" style="-fx-background-color: #0d9488; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="🛡️ Admin (Act. 3.2)" />
+            <Button fx:id="btnNavAdminDAO" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAbrirAdminDAO" prefHeight="38.0" style="-fx-background-color: #8b5cf6; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 6;" text="⚡ Admin DAO (Act. 3.8)" />
+            <Region VBox.vgrow="ALWAYS" />
+            <Button fx:id="btnNavSalirLogin" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleSalirLogin" prefHeight="40.0" style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 6;" text="🚪 Salir al Login" />
+         </children>
+      </VBox>
+   </left>
+   <center>
+      <StackPane style="-fx-background-color: #f8fafc; -fx-padding: 15;" BorderPane.alignment="CENTER">
+         <children>
+            <!-- ===================== PANEL 1: PELÍCULAS ===================== -->
+            <VBox fx:id="pnlPeliculas" spacing="12.0">
+               <children>
+                  <Label text="Gestión de Películas (Cartelera)" textFill="#0f172a">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <HBox spacing="15.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <!-- Formulario Películas -->
+                        <VBox prefWidth="350.0" spacing="10.0" style="-fx-background-color: white; -fx-padding: 14; -fx-border-color: #e2e8f0; -fx-border-radius: 6; -fx-background-radius: 6;">
+                           <children>
+                              <Label text="Formulario de Película" textFill="#1e293b">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <GridPane hgap="8.0" vgap="8.0">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="110.0" minWidth="90.0" prefWidth="100.0" />
+                                  <ColumnConstraints hgrow="ALWAYS" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                </rowConstraints>
+                                 <children>
+                                    <Label text="ID Película:" />
+                                    <TextField fx:id="txtPeliculaId" promptText="Ej. 101" GridPane.columnIndex="1" />
+                                    <Label text="Título:" GridPane.rowIndex="1" />
+                                    <TextField fx:id="txtPeliculaTitulo" promptText="Nombre de la película" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <Label text="Duración (min):" GridPane.rowIndex="2" />
+                                    <TextField fx:id="txtPeliculaDuracion" promptText="Ej. 120" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <Label text="Clasificación:" GridPane.rowIndex="3" />
+                                    <ComboBox fx:id="cmbPeliculaClasificacion" maxWidth="1.7976931348623157E308" promptText="Seleccionar..." GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    <Label text="Género:" GridPane.rowIndex="4" />
+                                    <ComboBox fx:id="cmbPeliculaGenero" maxWidth="1.7976931348623157E308" promptText="Seleccionar..." GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                    <Label text="Estado:" GridPane.rowIndex="5" />
+                                    <ComboBox fx:id="cmbPeliculaEstado" maxWidth="1.7976931348623157E308" promptText="Seleccionar..." GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                 </children>
+                              </GridPane>
+                              
+                              <!-- Gestión de Imagen / Póster -->
+                              <VBox alignment="CENTER" spacing="6.0" style="-fx-border-color: #cbd5e1; -fx-border-style: dashed; -fx-padding: 8; -fx-background-color: #f1f5f9;">
+                                 <children>
+                                    <Label text="Póster de la Película" textFill="#475569">
+                                       <font>
+                                          <Font name="System Bold" size="11.0" />
+                                       </font>
+                                    </Label>
+                                    <ImageView fx:id="imgPeliculaPreview" fitHeight="120.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" />
+                                    <Label fx:id="lblPeliculaRuta" text="Sin imagen seleccionada" textFill="#64748b">
+                                       <font>
+                                          <Font size="10.0" />
+                                       </font>
+                                    </Label>
+                                    <HBox alignment="CENTER" spacing="6.0">
+                                       <children>
+                                          <Button mnemonicParsing="false" onAction="#handleSeleccionarImagen" style="-fx-background-color: #0284c7; -fx-text-fill: white; -fx-cursor: hand;" text="Seleccionar Imagen..." />
+                                          <Button mnemonicParsing="false" onAction="#handleQuitarImagen" style="-fx-background-color: #64748b; -fx-text-fill: white; -fx-cursor: hand;" text="Quitar" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              
+                              <!-- Botones CRUD -->
+                              <HBox alignment="CENTER" spacing="5.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#handleNuevoPelicula" style="-fx-background-color: #64748b; -fx-text-fill: white; -fx-cursor: hand;" text="Nuevo" />
+                                    <Button mnemonicParsing="false" onAction="#handleGuardarPelicula" style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Guardar" />
+                                    <Button mnemonicParsing="false" onAction="#handleEditarPelicula" style="-fx-background-color: #eab308; -fx-text-fill: black; -fx-font-weight: bold; -fx-cursor: hand;" text="Editar" />
+                                    <Button mnemonicParsing="false" onAction="#handleEliminarPelicula" style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-cursor: hand;" text="Eliminar" />
+                                    <Button mnemonicParsing="false" onAction="#handleLimpiarPelicula" style="-fx-background-color: #94a3b8; -fx-text-fill: white; -fx-cursor: hand;" text="Limpiar" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        
+                        <!-- Tabla Películas -->
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label text="Listado de Películas Registradas" textFill="#1e293b">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TableView fx:id="tblPeliculas" VBox.vgrow="ALWAYS">
+                                <columns>
+                                  <TableColumn fx:id="colPeliculaId" prefWidth="60.0" text="ID" />
+                                  <TableColumn fx:id="colPeliculaTitulo" prefWidth="160.0" text="Título" />
+                                  <TableColumn fx:id="colPeliculaDuracion" prefWidth="75.0" text="Duración" />
+                                  <TableColumn fx:id="colPeliculaClasificacion" prefWidth="75.0" text="Clasif." />
+                                  <TableColumn fx:id="colPeliculaGenero" prefWidth="95.0" text="Género" />
+                                  <TableColumn fx:id="colPeliculaEstado" prefWidth="105.0" text="Estado" />
+                                </columns>
+                              </TableView>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+
+            <!-- ===================== PANEL 2: SALAS ===================== -->
+            <VBox fx:id="pnlSalas" spacing="12.0" visible="false">
+               <children>
+                  <Label text="Gestión de Salas" textFill="#0f172a">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <HBox spacing="15.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <!-- Formulario Salas -->
+                        <VBox prefWidth="350.0" spacing="12.0" style="-fx-background-color: white; -fx-padding: 14; -fx-border-color: #e2e8f0; -fx-border-radius: 6; -fx-background-radius: 6;">
+                           <children>
+                              <Label text="Formulario de Sala" textFill="#1e293b">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <GridPane hgap="8.0" vgap="10.0">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="110.0" minWidth="90.0" prefWidth="100.0" />
+                                  <ColumnConstraints hgrow="ALWAYS" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                </rowConstraints>
+                                 <children>
+                                    <Label text="ID Sala:" />
+                                    <TextField fx:id="txtSalaId" promptText="Ej. 1" GridPane.columnIndex="1" />
+                                    <Label text="Número de Sala:" GridPane.rowIndex="1" />
+                                    <TextField fx:id="txtSalaNumero" promptText="Ej. 3" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <Label text="Capacidad:" GridPane.rowIndex="2" />
+                                    <TextField fx:id="txtSalaCapacidad" promptText="Ej. 150" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <Label text="Tecnología:" GridPane.rowIndex="3" />
+                                    <ComboBox fx:id="cmbSalaTecnologia" maxWidth="1.7976931348623157E308" promptText="Seleccionar..." GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    <Label text="Estado:" GridPane.rowIndex="4" />
+                                    <ComboBox fx:id="cmbSalaEstado" maxWidth="1.7976931348623157E308" promptText="Seleccionar..." GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                 </children>
+                              </GridPane>
+                              
+                              <HBox alignment="CENTER" spacing="5.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#handleNuevoSala" style="-fx-background-color: #64748b; -fx-text-fill: white; -fx-cursor: hand;" text="Nuevo" />
+                                    <Button mnemonicParsing="false" onAction="#handleGuardarSala" style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Guardar" />
+                                    <Button mnemonicParsing="false" onAction="#handleEditarSala" style="-fx-background-color: #eab308; -fx-text-fill: black; -fx-font-weight: bold; -fx-cursor: hand;" text="Editar" />
+                                    <Button mnemonicParsing="false" onAction="#handleEliminarSala" style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-cursor: hand;" text="Eliminar" />
+                                    <Button mnemonicParsing="false" onAction="#handleLimpiarSala" style="-fx-background-color: #94a3b8; -fx-text-fill: white; -fx-cursor: hand;" text="Limpiar" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        
+                        <!-- Tabla Salas -->
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label text="Listado de Salas Registradas" textFill="#1e293b">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TableView fx:id="tblSalas" VBox.vgrow="ALWAYS">
+                                <columns>
+                                  <TableColumn fx:id="colSalaId" prefWidth="70.0" text="ID" />
+                                  <TableColumn fx:id="colSalaNumero" prefWidth="100.0" text="No. Sala" />
+                                  <TableColumn fx:id="colSalaCapacidad" prefWidth="100.0" text="Capacidad" />
+                                  <TableColumn fx:id="colSalaTecnologia" prefWidth="140.0" text="Tecnología" />
+                                  <TableColumn fx:id="colSalaEstado" prefWidth="120.0" text="Estado" />
+                                </columns>
+                              </TableView>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+
+            <!-- ===================== PANEL 3: FUNCIONES ===================== -->
+            <VBox fx:id="pnlFunciones" spacing="12.0" visible="false">
+               <children>
+                  <Label text="Programación de Funciones" textFill="#0f172a">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <HBox spacing="15.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <!-- Formulario Funciones -->
+                        <VBox prefWidth="350.0" spacing="12.0" style="-fx-background-color: white; -fx-padding: 14; -fx-border-color: #e2e8f0; -fx-border-radius: 6; -fx-background-radius: 6;">
+                           <children>
+                              <Label text="Formulario de Función" textFill="#1e293b">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <GridPane hgap="8.0" vgap="10.0">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="110.0" minWidth="90.0" prefWidth="100.0" />
+                                  <ColumnConstraints hgrow="ALWAYS" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                </rowConstraints>
+                                 <children>
+                                    <Label text="ID Función:" />
+                                    <TextField fx:id="txtFuncionId" promptText="Ej. 1001" GridPane.columnIndex="1" />
+                                    <Label text="Película:" GridPane.rowIndex="1" />
+                                    <ComboBox fx:id="cmbFuncionPelicula" maxWidth="1.7976931348623157E308" promptText="Seleccionar película..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <Label text="Sala:" GridPane.rowIndex="2" />
+                                    <ComboBox fx:id="cmbFuncionSala" maxWidth="1.7976931348623157E308" promptText="Seleccionar sala..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <Label text="Fecha:" GridPane.rowIndex="3" />
+                                    <DatePicker fx:id="dpFuncionFecha" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    <Label text="Hora:" GridPane.rowIndex="4" />
+                                    <ComboBox fx:id="cmbFuncionHora" maxWidth="1.7976931348623157E308" promptText="Seleccionar horario..." GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                    <Label text="Precio Base ($):" GridPane.rowIndex="5" />
+                                    <TextField fx:id="txtFuncionPrecio" promptText="Ej. 85.00" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                    <Label text="Estado:" GridPane.rowIndex="6" />
+                                    <ComboBox fx:id="cmbFuncionEstado" maxWidth="1.7976931348623157E308" promptText="Seleccionar..." GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                 </children>
+                              </GridPane>
+                              
+                              <HBox alignment="CENTER" spacing="5.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#handleNuevoFuncion" style="-fx-background-color: #64748b; -fx-text-fill: white; -fx-cursor: hand;" text="Nuevo" />
+                                    <Button mnemonicParsing="false" onAction="#handleGuardarFuncion" style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Guardar" />
+                                    <Button mnemonicParsing="false" onAction="#handleEditarFuncion" style="-fx-background-color: #eab308; -fx-text-fill: black; -fx-font-weight: bold; -fx-cursor: hand;" text="Editar" />
+                                    <Button mnemonicParsing="false" onAction="#handleEliminarFuncion" style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-cursor: hand;" text="Eliminar" />
+                                    <Button mnemonicParsing="false" onAction="#handleLimpiarFuncion" style="-fx-background-color: #94a3b8; -fx-text-fill: white; -fx-cursor: hand;" text="Limpiar" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        
+                        <!-- Tabla Funciones -->
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label text="Listado de Funciones Programadas" textFill="#1e293b">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TableView fx:id="tblFunciones" VBox.vgrow="ALWAYS">
+                                <columns>
+                                  <TableColumn fx:id="colFuncionId" prefWidth="60.0" text="ID" />
+                                  <TableColumn fx:id="colFuncionPelicula" prefWidth="140.0" text="Película" />
+                                  <TableColumn fx:id="colFuncionSala" prefWidth="100.0" text="Sala" />
+                                  <TableColumn fx:id="colFuncionFechaHora" prefWidth="130.0" text="Fecha / Hora" />
+                                  <TableColumn fx:id="colFuncionPrecio" prefWidth="75.0" text="Precio" />
+                                  <TableColumn fx:id="colFuncionEstado" prefWidth="95.0" text="Estado" />
+                                </columns>
+                              </TableView>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+
+            <!-- ===================== PANEL 4: USUARIOS ===================== -->
+            <VBox fx:id="pnlUsuarios" spacing="12.0" visible="false">
+               <children>
+                  <Label text="Gestión de Personal y Usuarios" textFill="#0f172a">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <HBox spacing="15.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <!-- Formulario Usuarios -->
+                        <VBox prefWidth="350.0" spacing="12.0" style="-fx-background-color: white; -fx-padding: 14; -fx-border-color: #e2e8f0; -fx-border-radius: 6; -fx-background-radius: 6;">
+                           <children>
+                              <Label text="Formulario de Usuario" textFill="#1e293b">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <GridPane hgap="8.0" vgap="10.0">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="110.0" minWidth="90.0" prefWidth="100.0" />
+                                  <ColumnConstraints hgrow="ALWAYS" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                  <RowConstraints minHeight="28.0" />
+                                </rowConstraints>
+                                 <children>
+                                    <Label text="ID Usuario:" />
+                                    <TextField fx:id="txtUsuarioId" promptText="Ej. 1" GridPane.columnIndex="1" />
+                                    <Label text="Nombre:" GridPane.rowIndex="1" />
+                                    <TextField fx:id="txtUsuarioNombre" promptText="Nombre" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <Label text="Apellido:" GridPane.rowIndex="2" />
+                                    <TextField fx:id="txtUsuarioApellido" promptText="Apellido" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <Label text="Email:" GridPane.rowIndex="3" />
+                                    <TextField fx:id="txtUsuarioEmail" promptText="correo@ejemplo.com" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    <Label text="Contraseña:" GridPane.rowIndex="4" />
+                                    <PasswordField fx:id="txtUsuarioContrasena" promptText="Contraseña" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                    <Label text="Nivel Acceso:" GridPane.rowIndex="5" />
+                                    <ComboBox fx:id="cmbUsuarioNivel" maxWidth="1.7976931348623157E308" promptText="Seleccionar..." GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                    <Label text="Turno / Estado:" GridPane.rowIndex="6" />
+                                    <ComboBox fx:id="cmbUsuarioTurno" maxWidth="1.7976931348623157E308" promptText="Seleccionar..." GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                 </children>
+                              </GridPane>
+                              
+                              <HBox alignment="CENTER" spacing="5.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#handleNuevoUsuario" style="-fx-background-color: #64748b; -fx-text-fill: white; -fx-cursor: hand;" text="Nuevo" />
+                                    <Button mnemonicParsing="false" onAction="#handleGuardarUsuario" style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Guardar" />
+                                    <Button mnemonicParsing="false" onAction="#handleEditarUsuario" style="-fx-background-color: #eab308; -fx-text-fill: black; -fx-font-weight: bold; -fx-cursor: hand;" text="Editar" />
+                                    <Button mnemonicParsing="false" onAction="#handleEliminarUsuario" style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-cursor: hand;" text="Eliminar" />
+                                    <Button mnemonicParsing="false" onAction="#handleLimpiarUsuario" style="-fx-background-color: #94a3b8; -fx-text-fill: white; -fx-cursor: hand;" text="Limpiar" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        
+                        <!-- Tabla Usuarios -->
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label text="Listado de Personal Registrado" textFill="#1e293b">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TableView fx:id="tblUsuarios" VBox.vgrow="ALWAYS">
+                                <columns>
+                                  <TableColumn fx:id="colUsuarioId" prefWidth="55.0" text="ID" />
+                                  <TableColumn fx:id="colUsuarioNombre" prefWidth="110.0" text="Nombre" />
+                                  <TableColumn fx:id="colUsuarioApellido" prefWidth="110.0" text="Apellido" />
+                                  <TableColumn fx:id="colUsuarioEmail" prefWidth="140.0" text="Email" />
+                                  <TableColumn fx:id="colUsuarioNivel" prefWidth="100.0" text="Nivel Acceso" />
+                                  <TableColumn fx:id="colUsuarioTurno" prefWidth="95.0" text="Turno" />
+                                </columns>
+                              </TableView>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </StackPane>
+   </center>
+</BorderPane>

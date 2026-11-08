@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="700.0" prefWidth="1060.0" style="-fx-background-color: #0f172a;" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.cine.controladores.LoginController">
+   <center>
+      <VBox alignment="CENTER" maxWidth="460.0" spacing="22.0" style="-fx-background-color: #1e293b; -fx-padding: 36 40 36 40; -fx-background-radius: 12; -fx-border-color: #334155; -fx-border-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 20, 0, 0, 8);" BorderPane.alignment="CENTER">
+         <children>
+            <!-- Icono / Encabezado -->
+            <VBox alignment="CENTER" spacing="8.0">
+               <children>
+                  <Label text="🎬" textFill="WHITE">
+                     <font>
+                        <Font size="48.0" />
+                     </font>
+                  </Label>
+                  <Label text="SISTEMA DE CINE" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="24.0" />
+                     </font>
+                  </Label>
+                  <Label text="Gestión de Cartelera, Taquilla y Salas" textFill="#94a3b8">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </Label>
+                  <Label text="POO - Unidad 3 (Actividad 3.6: Login y Módulos)" textFill="#38bdf8">
+                     <font>
+                        <Font name="System Bold" size="11.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+
+            <!-- Campos visuales de Login (Opcionales con indicación de acceso libre) -->
+            <VBox spacing="14.0">
+               <children>
+                  <VBox spacing="6.0">
+                     <children>
+                        <Label text="Usuario / Correo:" textFill="#cbd5e1">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <TextField fx:id="txtUsuario" promptText="admin@cine.com (Opcional)" style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-prompt-text-fill: #64748b; -fx-border-color: #334155; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10;" />
+                     </children>
+                  </VBox>
+                  <VBox spacing="6.0">
+                     <children>
+                        <Label text="Contraseña:" textFill="#cbd5e1">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <PasswordField fx:id="txtContrasena" promptText="•••••••• (Opcional)" style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-prompt-text-fill: #64748b; -fx-border-color: #334155; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10;" />
+                     </children>
+                  </VBox>
+                  <Label text="ℹ️ El botón Entrar accede directamente sin validar credenciales." textFill="#94a3b8" wrapText="true">
+                     <font>
+                        <Font size="11.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+
+            <!-- Botones de Acción Requeridos -->
+            <VBox spacing="12.0">
+               <children>
+                  <Button fx:id="btnEntrar" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleEntrar" prefHeight="44.0" style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 6; -fx-cursor: hand;" text="🚀 Entrar al Sistema" />
+                  <Button fx:id="btnCerrar" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleCerrar" prefHeight="40.0" style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-background-radius: 6; -fx-cursor: hand;" text="❌ Cerrar Aplicación" />
+               </children>
+            </VBox>
+         </children>
+         <BorderPane.margin>
+            <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+         </BorderPane.margin>
+      </VBox>
+   </center>
+   <bottom>
+      <HBox alignment="CENTER" style="-fx-padding: 12;" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="Desarrollo de Software Multiplataforma • UTT" textFill="#475569">
+               <font>
+                  <Font size="12.0" />
+               </font>
+            </Label>
+         </children>
+      </HBox>
+   </bottom>
+</BorderPane>
