@@ -1,5 +1,9 @@
 package com.mycompany.cine.controladores;
 
+import com.mycompany.cine.daos.FuncionDAO;
+import com.mycompany.cine.daos.GestorImagenes;
+import com.mycompany.cine.daos.PeliculaDAO;
+import com.mycompany.cine.daos.SalaDAO;
 import com.mycompany.cine.modelo.Administrador;
 import com.mycompany.cine.modelo.Funcion;
 import com.mycompany.cine.modelo.Pelicula;
@@ -77,9 +81,12 @@ public class CinesController implements Initializable {
     @FXML private TableColumn<Pelicula, String> colPeliculaClasificacion;
     @FXML private TableColumn<Pelicula, String> colPeliculaGenero;
     @FXML private TableColumn<Pelicula, String> colPeliculaEstado;
+    @FXML private TableColumn<Pelicula, String> colPeliculaRutaImagen;
 
     private final ObservableList<Pelicula> listaPeliculas = FXCollections.observableArrayList();
+    private final PeliculaDAO peliculaDAO = new PeliculaDAO();
     private String rutaImagenSeleccionada = null;
+    private File archivoImagenSeleccionado = null;
 
     // ==========================================
     // MÓDULO: SALAS
@@ -98,6 +105,7 @@ public class CinesController implements Initializable {
     @FXML private TableColumn<Sala, String> colSalaEstado;
 
     private final ObservableList<Sala> listaSalas = FXCollections.observableArrayList();
+    private final SalaDAO salaDAO = new SalaDAO();
 
     // ==========================================
     // MÓDULO: FUNCIONES
@@ -119,6 +127,7 @@ public class CinesController implements Initializable {
     @FXML private TableColumn<Funcion, String> colFuncionEstado;
 
     private final ObservableList<Funcion> listaFunciones = FXCollections.observableArrayList();
+    private final FuncionDAO funcionDAO = new FuncionDAO();
 
     // ==========================================
     // MÓDULO: USUARIOS / PERSONAL
@@ -242,8 +251,14 @@ public class CinesController implements Initializable {
         colPeliculaClasificacion.setCellValueFactory(new PropertyValueFactory<>("clasificacion"));
         colPeliculaGenero.setCellValueFactory(new PropertyValueFactory<>("genero"));
         colPeliculaEstado.setCellValueFactory(new PropertyValueFactory<>("estadoPelicula"));
+        if (colPeliculaRutaImagen != null) {
+            colPeliculaRutaImagen.setCellValueFactory(new PropertyValueFactory<>("rutaImagen"));
+        }
 
         tblPeliculas.setItems(listaPeliculas);
+
+        // Cargar registros desde MySQL
+        cargarPeliculasDesdeBD();
 
         // Al dar clic en una fila, cargar datos al formulario
         tblPeliculas.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, peli) -> {
@@ -255,12 +270,16 @@ public class CinesController implements Initializable {
                 cmbPeliculaGenero.setValue(peli.getGenero());
                 cmbPeliculaEstado.setValue(peli.getEstadoPelicula());
 
+                // Resetear archivo externo nuevo seleccionado
+                archivoImagenSeleccionado = null;
+
                 // Cargar imagen si tiene ruta
                 if (peli.getRutaImagen() != null && !peli.getRutaImagen().isEmpty()) {
                     rutaImagenSeleccionada = peli.getRutaImagen();
                     lblPeliculaRuta.setText(new File(peli.getRutaImagen()).getName());
                     try {
-                        imgPeliculaPreview.setImage(new Image(new File(peli.getRutaImagen()).toURI().toString()));
+                        Image img = GestorImagenes.cargarImagen(peli.getRutaImagen());
+                        imgPeliculaPreview.setImage(img);
                     } catch (Exception ex) {
                         imgPeliculaPreview.setImage(null);
                         lblPeliculaRuta.setText("No se pudo cargar la imagen");
@@ -272,6 +291,11 @@ public class CinesController implements Initializable {
         });
     }
 
+    private void cargarPeliculasDesdeBD() {
+        listaPeliculas.clear();
+        listaPeliculas.addAll(peliculaDAO.listarTodos());
+    }
+
     @FXML
     private void handleSeleccionarImagen(ActionEvent event) {
         FileChooser fc = new FileChooser();
@@ -280,6 +304,7 @@ public class CinesController implements Initializable {
         File archivo = fc.showOpenDialog(txtPeliculaTitulo.getScene().getWindow());
 
         if (archivo != null) {
+            archivoImagenSeleccionado = archivo;
             rutaImagenSeleccionada = archivo.getAbsolutePath();
             lblPeliculaRuta.setText(archivo.getName());
             imgPeliculaPreview.setImage(new Image(archivo.toURI().toString()));
@@ -289,6 +314,7 @@ public class CinesController implements Initializable {
     @FXML
     private void handleQuitarImagen(ActionEvent event) {
         rutaImagenSeleccionada = null;
+        archivoImagenSeleccionado = null;
         lblPeliculaRuta.setText("Sin imagen seleccionada");
         imgPeliculaPreview.setImage(null);
     }
@@ -314,34 +340,38 @@ public class CinesController implements Initializable {
     private void handleGuardarPelicula(ActionEvent event) {
         try {
             // Validaciones básicas de campos vacíos
-            if (txtPeliculaId.getText().trim().isEmpty() || txtPeliculaTitulo.getText().trim().isEmpty()
+            if (txtPeliculaTitulo.getText().trim().isEmpty()
                     || txtPeliculaDuracion.getText().trim().isEmpty() || cmbPeliculaClasificacion.getValue() == null
                     || cmbPeliculaGenero.getValue() == null || cmbPeliculaEstado.getValue() == null) {
                 mostrarAlerta("Error de Validación", "Campos incompletos", "Por favor completa todos los campos del formulario.", AlertType.WARNING);
                 return;
             }
 
-            int id = Integer.parseInt(txtPeliculaId.getText().trim());
             int duracion = Integer.parseInt(txtPeliculaDuracion.getText().trim());
 
-            // Validar ID duplicado
-            for (Pelicula p : listaPeliculas) {
-                if (p.getIdPelicula() == id) {
-                    mostrarAlerta("ID Duplicado", "Ya existe una película con este ID", "Elige un ID diferente para la nueva película.", AlertType.ERROR);
-                    return;
-                }
+            // Copiar imagen física al proyecto si se seleccionó una
+            String rutaFinal = GestorImagenes.IMAGEN_POR_DEFECTO_PELICULA;
+            if (archivoImagenSeleccionado != null) {
+                rutaFinal = GestorImagenes.copiarImagenAlProyecto(archivoImagenSeleccionado, "peliculas", "pelicula_" + txtPeliculaTitulo.getText().trim());
+            } else if (rutaImagenSeleccionada != null && !rutaImagenSeleccionada.trim().isEmpty()) {
+                rutaFinal = rutaImagenSeleccionada.trim();
             }
 
-            Pelicula nueva = new Pelicula(id, txtPeliculaTitulo.getText().trim(), duracion,
+            Pelicula nueva = new Pelicula(0, txtPeliculaTitulo.getText().trim(), duracion,
                     cmbPeliculaClasificacion.getValue(), cmbPeliculaGenero.getValue(),
-                    cmbPeliculaEstado.getValue(), rutaImagenSeleccionada);
+                    cmbPeliculaEstado.getValue(), rutaFinal);
 
-            listaPeliculas.add(nueva);
-            mostrarAlerta("Éxito", "Película Registrada", "La película se ha guardado correctamente.", AlertType.INFORMATION);
-            handleLimpiarPelicula(null);
+            boolean exito = peliculaDAO.guardar(nueva);
+            if (exito) {
+                cargarPeliculasDesdeBD();
+                mostrarAlerta("Éxito", "Película Registrada", "La película se ha guardado en la base de datos con éxito (ID: " + nueva.getIdPelicula() + ").", AlertType.INFORMATION);
+                handleLimpiarPelicula(null);
+            } else {
+                mostrarAlerta("Error", "No se pudo guardar", "Ocurrió un error al registrar la película en MySQL.", AlertType.ERROR);
+            }
 
         } catch (NumberFormatException e) {
-            mostrarAlerta("Formato Incorrecto", "Valores numéricos no válidos", "El ID y la duración deben ser números enteros válidos.", AlertType.ERROR);
+            mostrarAlerta("Formato Incorrecto", "Duración inválida", "La duración debe ser un número entero válido en minutos.", AlertType.ERROR);
         } catch (IllegalArgumentException e) {
             mostrarAlerta("Error en Modelo", "Datos no permitidos", e.getMessage(), AlertType.ERROR);
         }
@@ -358,15 +388,33 @@ public class CinesController implements Initializable {
         try {
             int duracion = Integer.parseInt(txtPeliculaDuracion.getText().trim());
 
+            String rutaAnterior = seleccionada.getRutaImagen();
+            String rutaFinal = rutaAnterior;
+
+            // Si seleccionó un archivo nuevo desde el explorador, copiar y sustituir
+            if (archivoImagenSeleccionado != null) {
+                rutaFinal = GestorImagenes.copiarImagenAlProyecto(archivoImagenSeleccionado, "peliculas", "pelicula_" + seleccionada.getIdPelicula());
+                if (rutaAnterior != null && !rutaAnterior.equals(rutaFinal)) {
+                    GestorImagenes.eliminarImagenDelProyecto(rutaAnterior);
+                }
+            } else if (rutaImagenSeleccionada == null) {
+                rutaFinal = GestorImagenes.IMAGEN_POR_DEFECTO_PELICULA;
+            }
+
             seleccionada.setTitulo(txtPeliculaTitulo.getText().trim());
             seleccionada.setDuracion(duracion);
             seleccionada.setClasificacion(cmbPeliculaClasificacion.getValue());
             seleccionada.setGenero(cmbPeliculaGenero.getValue());
             seleccionada.setEstadoPelicula(cmbPeliculaEstado.getValue());
-            seleccionada.setRutaImagen(rutaImagenSeleccionada);
+            seleccionada.setRutaImagen(rutaFinal);
 
-            tblPeliculas.refresh();
-            mostrarAlerta("Éxito", "Película Actualizada", "Los datos de la película se han modificado correctamente.", AlertType.INFORMATION);
+            boolean exito = peliculaDAO.actualizar(seleccionada);
+            if (exito) {
+                cargarPeliculasDesdeBD();
+                mostrarAlerta("Éxito", "Película Actualizada", "Los datos de la película se han modificado en la base de datos.", AlertType.INFORMATION);
+            } else {
+                mostrarAlerta("Error", "No se pudo actualizar", "Ocurrió un error al actualizar la película en MySQL.", AlertType.ERROR);
+            }
 
         } catch (NumberFormatException e) {
             mostrarAlerta("Formato Incorrecto", "Duración inválida", "La duración debe ser un número entero mayor a 0.", AlertType.ERROR);
@@ -383,10 +431,18 @@ public class CinesController implements Initializable {
             return;
         }
 
-        if (confirmarEliminacion("¿Estás seguro de que deseas eliminar la película '" + seleccionada.getTitulo() + "'?")) {
-            listaPeliculas.remove(seleccionada);
-            handleLimpiarPelicula(null);
-            mostrarAlerta("Éxito", "Película Eliminada", "El registro ha sido eliminado satisfactoriamente.", AlertType.INFORMATION);
+        if (confirmarEliminacion("¿Estás seguro de que deseas eliminar de la base de datos la película '" + seleccionada.getTitulo() + "'?")) {
+            String rutaImagenABorrar = seleccionada.getRutaImagen();
+            boolean exito = peliculaDAO.eliminar(seleccionada.getIdPelicula());
+            if (exito) {
+                // Borrar archivo físico del disco si no es el placeholder
+                GestorImagenes.eliminarImagenDelProyecto(rutaImagenABorrar);
+                cargarPeliculasDesdeBD();
+                handleLimpiarPelicula(null);
+                mostrarAlerta("Éxito", "Película Eliminada", "El registro ha sido eliminado satisfactoriamente de MySQL y su póster de disco.", AlertType.INFORMATION);
+            } else {
+                mostrarAlerta("Error", "No se pudo eliminar", "No fue posible eliminar la película de la base de datos. Puede que tenga funciones asignadas.", AlertType.ERROR);
+            }
         }
     }
 
@@ -405,6 +461,9 @@ public class CinesController implements Initializable {
 
         tblSalas.setItems(listaSalas);
 
+        // Cargar registros desde MySQL
+        cargarSalasDesdeBD();
+
         tblSalas.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, sala) -> {
             if (sala != null) {
                 txtSalaId.setText(String.valueOf(sala.getIdSala()));
@@ -414,6 +473,11 @@ public class CinesController implements Initializable {
                 cmbSalaEstado.setValue(sala.getEstadoSala());
             }
         });
+    }
+
+    private void cargarSalasDesdeBD() {
+        listaSalas.clear();
+        listaSalas.addAll(salaDAO.listarTodos());
     }
 
     @FXML
@@ -434,31 +498,28 @@ public class CinesController implements Initializable {
     @FXML
     private void handleGuardarSala(ActionEvent event) {
         try {
-            if (txtSalaId.getText().trim().isEmpty() || txtSalaNumero.getText().trim().isEmpty()
+            if (txtSalaNumero.getText().trim().isEmpty()
                     || txtSalaCapacidad.getText().trim().isEmpty() || cmbSalaTecnologia.getValue() == null
                     || cmbSalaEstado.getValue() == null) {
                 mostrarAlerta("Error", "Campos incompletos", "Por favor llena todos los campos de la sala.", AlertType.WARNING);
                 return;
             }
 
-            int id = Integer.parseInt(txtSalaId.getText().trim());
             int num = Integer.parseInt(txtSalaNumero.getText().trim());
             int cap = Integer.parseInt(txtSalaCapacidad.getText().trim());
 
-            for (Sala s : listaSalas) {
-                if (s.getIdSala() == id) {
-                    mostrarAlerta("ID Duplicado", "Ya existe una sala con este ID", "Elige otro identificador.", AlertType.ERROR);
-                    return;
-                }
+            Sala nueva = new Sala(0, num, cap, cmbSalaTecnologia.getValue(), cmbSalaEstado.getValue());
+            boolean exito = salaDAO.guardar(nueva);
+            if (exito) {
+                cargarSalasDesdeBD();
+                mostrarAlerta("Éxito", "Sala Guardada", "La sala se registró correctamente en MySQL (ID: " + nueva.getIdSala() + ").", AlertType.INFORMATION);
+                handleLimpiarSala(null);
+            } else {
+                mostrarAlerta("Error", "No se pudo guardar", "Ocurrió un error al registrar la sala en la base de datos.", AlertType.ERROR);
             }
 
-            Sala nueva = new Sala(id, num, cap, cmbSalaTecnologia.getValue(), cmbSalaEstado.getValue());
-            listaSalas.add(nueva);
-            mostrarAlerta("Éxito", "Sala Guardada", "La sala se registró correctamente.", AlertType.INFORMATION);
-            handleLimpiarSala(null);
-
         } catch (NumberFormatException e) {
-            mostrarAlerta("Error", "Valores numéricos inválidos", "El ID, número y capacidad deben ser números enteros.", AlertType.ERROR);
+            mostrarAlerta("Error", "Valores numéricos inválidos", "El número y capacidad deben ser números enteros válidos.", AlertType.ERROR);
         } catch (IllegalArgumentException e) {
             mostrarAlerta("Error en Modelo", "Datos no válidos", e.getMessage(), AlertType.ERROR);
         }
@@ -478,8 +539,13 @@ public class CinesController implements Initializable {
             seleccionada.setTecnologia(cmbSalaTecnologia.getValue());
             seleccionada.setEstadoSala(cmbSalaEstado.getValue());
 
-            tblSalas.refresh();
-            mostrarAlerta("Éxito", "Sala Modificada", "Los datos de la sala fueron actualizados.", AlertType.INFORMATION);
+            boolean exito = salaDAO.actualizar(seleccionada);
+            if (exito) {
+                cargarSalasDesdeBD();
+                mostrarAlerta("Éxito", "Sala Modificada", "Los datos de la sala fueron actualizados en MySQL.", AlertType.INFORMATION);
+            } else {
+                mostrarAlerta("Error", "No se pudo actualizar", "Ocurrió un error al actualizar la sala en la base de datos.", AlertType.ERROR);
+            }
 
         } catch (NumberFormatException e) {
             mostrarAlerta("Error", "Valores numéricos inválidos", "Verifica el número y la capacidad.", AlertType.ERROR);
@@ -496,10 +562,15 @@ public class CinesController implements Initializable {
             return;
         }
 
-        if (confirmarEliminacion("¿Deseas eliminar la Sala " + seleccionada.getNumero() + "?")) {
-            listaSalas.remove(seleccionada);
-            handleLimpiarSala(null);
-            mostrarAlerta("Éxito", "Sala Eliminada", "La sala ha sido eliminada.", AlertType.INFORMATION);
+        if (confirmarEliminacion("¿Deseas eliminar de la base de datos la Sala " + seleccionada.getNumero() + "?")) {
+            boolean exito = salaDAO.eliminar(seleccionada.getIdSala());
+            if (exito) {
+                cargarSalasDesdeBD();
+                handleLimpiarSala(null);
+                mostrarAlerta("Éxito", "Sala Eliminada", "La sala ha sido eliminada satisfactoriamente de MySQL.", AlertType.INFORMATION);
+            } else {
+                mostrarAlerta("Error", "No se pudo eliminar", "No fue posible eliminar la sala de la base de datos. Puede que tenga funciones programadas.", AlertType.ERROR);
+            }
         }
     }
 
@@ -519,11 +590,33 @@ public class CinesController implements Initializable {
 
         tblFunciones.setItems(listaFunciones);
 
+        // Cargar registros desde MySQL
+        cargarFuncionesDesdeBD();
+
         tblFunciones.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, f) -> {
             if (f != null) {
                 txtFuncionId.setText(String.valueOf(f.getIdFuncion()));
-                cmbFuncionPelicula.setValue(f.getPelicula());
-                cmbFuncionSala.setValue(f.getSala());
+
+                // Seleccionar película coincidente en el combo
+                if (f.getPelicula() != null) {
+                    for (Pelicula p : cmbFuncionPelicula.getItems()) {
+                        if (p.getIdPelicula() == f.getPelicula().getIdPelicula()) {
+                            cmbFuncionPelicula.setValue(p);
+                            break;
+                        }
+                    }
+                }
+
+                // Seleccionar sala coincidente en el combo
+                if (f.getSala() != null) {
+                    for (Sala s : cmbFuncionSala.getItems()) {
+                        if (s.getIdSala() == f.getSala().getIdSala()) {
+                            cmbFuncionSala.setValue(s);
+                            break;
+                        }
+                    }
+                }
+
                 if (f.getFechaHora() != null) {
                     dpFuncionFecha.setValue(f.getFechaHora().toLocalDate());
                     cmbFuncionHora.setValue(String.format("%02d:%02d", f.getFechaHora().getHour(), f.getFechaHora().getMinute()));
@@ -532,6 +625,11 @@ public class CinesController implements Initializable {
                 cmbFuncionEstado.setValue(f.getEstadoFuncion());
             }
         });
+    }
+
+    private void cargarFuncionesDesdeBD() {
+        listaFunciones.clear();
+        listaFunciones.addAll(funcionDAO.listarTodos());
     }
 
     @FXML
@@ -554,21 +652,12 @@ public class CinesController implements Initializable {
     @FXML
     private void handleGuardarFuncion(ActionEvent event) {
         try {
-            if (txtFuncionId.getText().trim().isEmpty() || cmbFuncionPelicula.getValue() == null
+            if (cmbFuncionPelicula.getValue() == null
                     || cmbFuncionSala.getValue() == null || dpFuncionFecha.getValue() == null
                     || cmbFuncionHora.getValue() == null || txtFuncionPrecio.getText().trim().isEmpty()
                     || cmbFuncionEstado.getValue() == null) {
                 mostrarAlerta("Campos Requeridos", "Faltan datos", "Completa todos los datos para programar la función.", AlertType.WARNING);
                 return;
-            }
-
-            int id = Integer.parseInt(txtFuncionId.getText().trim());
-
-            for (Funcion fn : listaFunciones) {
-                if (fn.getIdFuncion() == id) {
-                    mostrarAlerta("ID Duplicado", "Ya existe una función con este ID", "Elige otro identificador.", AlertType.ERROR);
-                    return;
-                }
             }
 
             LocalDate fecha = dpFuncionFecha.getValue();
@@ -578,15 +667,20 @@ public class CinesController implements Initializable {
 
             BigDecimal precio = new BigDecimal(txtFuncionPrecio.getText().trim());
 
-            Funcion nueva = new Funcion(id, cmbFuncionPelicula.getValue(), cmbFuncionSala.getValue(),
+            Funcion nueva = new Funcion(0, cmbFuncionPelicula.getValue(), cmbFuncionSala.getValue(),
                     fechaHora, precio, cmbFuncionEstado.getValue());
 
-            listaFunciones.add(nueva);
-            mostrarAlerta("Éxito", "Función Creada", "La función se ha programado exitosamente.", AlertType.INFORMATION);
-            handleLimpiarFuncion(null);
+            boolean exito = funcionDAO.guardar(nueva);
+            if (exito) {
+                cargarFuncionesDesdeBD();
+                mostrarAlerta("Éxito", "Función Creada", "La función se ha programado en la base de datos (ID: " + nueva.getIdFuncion() + ").", AlertType.INFORMATION);
+                handleLimpiarFuncion(null);
+            } else {
+                mostrarAlerta("Error", "No se pudo guardar", "Ocurrió un error al guardar la función en MySQL.", AlertType.ERROR);
+            }
 
         } catch (NumberFormatException e) {
-            mostrarAlerta("Error Numérico", "Precio o ID inválidos", "Asegúrate de ingresar números válidos para el ID y el Precio (ej. 85.00).", AlertType.ERROR);
+            mostrarAlerta("Error Numérico", "Precio inválido", "Asegúrate de ingresar un precio válido (ej. 85.00).", AlertType.ERROR);
         } catch (IllegalArgumentException e) {
             mostrarAlerta("Error en Modelo", "Datos no permitidos", e.getMessage(), AlertType.ERROR);
         }
@@ -614,8 +708,13 @@ public class CinesController implements Initializable {
             seleccionada.setPrecioBase(precio);
             seleccionada.setEstadoFuncion(cmbFuncionEstado.getValue());
 
-            tblFunciones.refresh();
-            mostrarAlerta("Éxito", "Función Actualizada", "Los datos de la función se modificaron correctamente.", AlertType.INFORMATION);
+            boolean exito = funcionDAO.actualizar(seleccionada);
+            if (exito) {
+                cargarFuncionesDesdeBD();
+                mostrarAlerta("Éxito", "Función Actualizada", "Los datos de la función se modificaron en la base de datos.", AlertType.INFORMATION);
+            } else {
+                mostrarAlerta("Error", "No se pudo actualizar", "Ocurrió un error al actualizar la función en MySQL.", AlertType.ERROR);
+            }
 
         } catch (Exception e) {
             mostrarAlerta("Error", "No se pudo actualizar", e.getMessage(), AlertType.ERROR);
@@ -631,9 +730,14 @@ public class CinesController implements Initializable {
         }
 
         if (confirmarEliminacion("¿Deseas eliminar la función con ID #" + seleccionada.getIdFuncion() + "?")) {
-            listaFunciones.remove(seleccionada);
-            handleLimpiarFuncion(null);
-            mostrarAlerta("Éxito", "Función Eliminada", "La función ha sido cancelada y retirada.", AlertType.INFORMATION);
+            boolean exito = funcionDAO.eliminar(seleccionada.getIdFuncion());
+            if (exito) {
+                cargarFuncionesDesdeBD();
+                handleLimpiarFuncion(null);
+                mostrarAlerta("Éxito", "Función Eliminada", "La función ha sido cancelada y eliminada de MySQL.", AlertType.INFORMATION);
+            } else {
+                mostrarAlerta("Error", "No se pudo eliminar", "Ocurrió un error al eliminar la función en la base de datos.", AlertType.ERROR);
+            }
         }
     }
 

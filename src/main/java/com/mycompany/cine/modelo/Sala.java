@@ -45,8 +45,8 @@ public class Sala {
     }
 
     public void setIdSala(int idSala) {
-        if (idSala <= 0) {
-            throw new IllegalArgumentException("El ID de la sala debe ser mayor a cero.");
+        if (idSala < 0) {
+            throw new IllegalArgumentException("El ID de la sala no puede ser negativo.");
         }
         this.idSala = idSala;
     }

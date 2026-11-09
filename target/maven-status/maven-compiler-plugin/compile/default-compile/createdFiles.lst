@@ -13,12 +13,15 @@ com\mycompany\cine\daos\AdministradorDAO.class
 com\mycompany\cine\modelo\Boleto.class
 com\mycompany\cine\modelo\Funcion.class
 com\mycompany\cine\persistencia\CineArrayList.class
+com\mycompany\cine\daos\SalaDAO.class
 com\mycompany\cine\modelo\Sala.class
 com\mycompany\cine\App.class
 com\mycompany\cine\controladores\AdministradorController.class
 com\mycompany\cine\modelo\EEstados.class
+com\mycompany\cine\daos\FuncionDAO.class
 com\mycompany\cine\modelo\Supervisor.class
 com\mycompany\cine\daos\GestorImagenes.class
+com\mycompany\cine\daos\PeliculaDAO.class
 com\mycompany\cine\modelo\ClienteMegaFan.class
 com\mycompany\cine\modelo\ERoles.class
 com\mycompany\cine\modelo\Persona.class

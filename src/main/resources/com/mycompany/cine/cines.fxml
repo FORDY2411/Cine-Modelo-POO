@@ -92,7 +92,7 @@
                                 </rowConstraints>
                                  <children>
                                     <Label text="ID Película:" />
-                                    <TextField fx:id="txtPeliculaId" promptText="Ej. 101" GridPane.columnIndex="1" />
+                                    <TextField fx:id="txtPeliculaId" editable="false" promptText="Autogenerado" style="-fx-background-color: #f1f5f9;" GridPane.columnIndex="1" />
                                     <Label text="Título:" GridPane.rowIndex="1" />
                                     <TextField fx:id="txtPeliculaTitulo" promptText="Nombre de la película" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                     <Label text="Duración (min):" GridPane.rowIndex="2" />
@@ -158,6 +158,7 @@
                                   <TableColumn fx:id="colPeliculaClasificacion" prefWidth="75.0" text="Clasif." />
                                   <TableColumn fx:id="colPeliculaGenero" prefWidth="95.0" text="Género" />
                                   <TableColumn fx:id="colPeliculaEstado" prefWidth="105.0" text="Estado" />
+                                  <TableColumn fx:id="colPeliculaRutaImagen" prefWidth="120.0" text="Póster" />
                                 </columns>
                               </TableView>
                            </children>
@@ -199,7 +200,7 @@
                                 </rowConstraints>
                                  <children>
                                     <Label text="ID Sala:" />
-                                    <TextField fx:id="txtSalaId" promptText="Ej. 1" GridPane.columnIndex="1" />
+                                    <TextField fx:id="txtSalaId" editable="false" promptText="Autogenerado" style="-fx-background-color: #f1f5f9;" GridPane.columnIndex="1" />
                                     <Label text="Número de Sala:" GridPane.rowIndex="1" />
                                     <TextField fx:id="txtSalaNumero" promptText="Ej. 3" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                     <Label text="Capacidad:" GridPane.rowIndex="2" />
@@ -281,7 +282,7 @@
                                 </rowConstraints>
                                  <children>
                                     <Label text="ID Función:" />
-                                    <TextField fx:id="txtFuncionId" promptText="Ej. 1001" GridPane.columnIndex="1" />
+                                    <TextField fx:id="txtFuncionId" editable="false" promptText="Autogenerado" style="-fx-background-color: #f1f5f9;" GridPane.columnIndex="1" />
                                     <Label text="Película:" GridPane.rowIndex="1" />
                                     <ComboBox fx:id="cmbFuncionPelicula" maxWidth="1.7976931348623157E308" promptText="Seleccionar película..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                     <Label text="Sala:" GridPane.rowIndex="2" />

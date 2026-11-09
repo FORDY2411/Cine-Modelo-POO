@@ -52,8 +52,8 @@ public class Pelicula {
     }
 
     public void setIdPelicula(int idPelicula) {
-        if (idPelicula <= 0) {
-            throw new IllegalArgumentException("El ID de la película debe ser mayor a cero.");
+        if (idPelicula < 0) {
+            throw new IllegalArgumentException("El ID de la película no puede ser negativo.");
         }
         this.idPelicula = idPelicula;
     }

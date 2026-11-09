@@ -51,8 +51,8 @@ public class Funcion {
     }
 
     public void setIdFuncion(int idFuncion) {
-        if (idFuncion <= 0) {
-            throw new IllegalArgumentException("El ID de la función debe ser mayor a cero.");
+        if (idFuncion < 0) {
+            throw new IllegalArgumentException("El ID de la función no puede ser negativo.");
         }
         this.idFuncion = idFuncion;
     }

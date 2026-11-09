@@ -4,6 +4,7 @@ C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cin
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\daos\AdministradorDAO.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\controladores\LoginController.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\daos\GestorImagenes.java
+C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\daos\FuncionDAO.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\modelo\Boleto.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\controladores\AdministradorController.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\modelo\Funcion.java
@@ -11,11 +12,13 @@ C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cin
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\module-info.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\SecondaryController.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\persistencia\Listable.java
+C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\daos\SalaDAO.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\modelo\Pelicula.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\modelo\EEstados.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\modelo\Administrador.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\modelo\Persona.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\modelo\ERoles.java
+C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\daos\PeliculaDAO.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\modelo\ClienteMegaFan.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\modelo\Supervisor.java
 C:\Users\Fordiis\Documents\NetBeansProjects\Cine\src\main\java\com\mycompany\cine\controladores\CinesController.java
